@@ -1,0 +1,5 @@
+// Error: missing returns clause
+function test(x: int)
+{
+    x = x + 1;
+}

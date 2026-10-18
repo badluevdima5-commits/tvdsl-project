@@ -1,0 +1,8 @@
+// Error: unclosed block
+function test()
+returns x: int
+{
+    x = 1;
+    if (x > 0)
+    {
+        x = x + 1;

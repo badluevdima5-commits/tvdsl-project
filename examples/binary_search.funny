@@ -1,0 +1,29 @@
+// Formula definition and usage
+sorted(arr: int[], len: int) =>
+    forall(i: int | i >= 0 and i < len - 1 -> arr[i] <= arr[i + 1])
+
+// Binary search in sorted array
+function binarySearch(arr: int[], target: int, n: int)
+requires sorted(arr, n) and n >= 0 and n <= length(arr)
+returns index: int
+ensures (index >= 0 and index < n and arr[index] == target) or index == -1
+uses low: int, high: int, mid: int
+{
+    low = 0;
+    high = n - 1;
+    index = -1;
+
+    while (low <= high and index == -1)
+    invariant low >= 0 and high < n
+    {
+        mid = (low + high) / 2;
+
+        if (arr[mid] == target)
+            index = mid;
+        else
+            if (arr[mid] < target)
+                low = mid + 1;
+            else
+                high = mid - 1;
+    }
+}

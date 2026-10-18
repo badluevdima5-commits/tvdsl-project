@@ -1,0 +1,56 @@
+TOKEN_SPEC = [                             
+    ("FUNCTION", r"function"),
+    ("RETURNS", r"returns"),
+    ("REQUIRES", r"requires"),
+    ("ENSURES", r"ensures"),
+    ("USES", r"uses"),
+    ("IF", r"if"),
+    ("ELSE", r"else"),
+    ("WHILE", r"while"),
+    ("INVARIANT", r"invariant"),
+    ("ASSERT", r"assert"),
+    ("ASSUME", r"assume"),
+    ("FORALL", r"forall"),
+    ("EXISTS", r"exists"),
+    ("TRUE", r"true"),
+    ("FALSE", r"false"),
+    ("AND", r"and"),
+    ("OR", r"or"),
+    ("NOT", r"not"),
+    ("LENGTH", r"length"),
+
+    ("IDENT", r"[A-Za-z_][A-Za-z0-9_]*"),
+              
+    ("INT", r"[0-9]+"),
+                   
+    ("COMMENT", r"//[^\n\r]*"),
+    ("WS", r"[ \t\n\r]+"),
+
+    ("ARROW_DOUBLE", r"=>"),
+    ("ARROW", r"->"),
+    ("EQ", r"=="),
+    ("NEQ", r"!="),
+    ("LEQ", r"<="),
+    ("GEQ", r">="),
+      
+    ("ASSIGN", r"="),
+    ("LT", r"<"),
+    ("GT", r">"),
+    ("PLUS", r"\+"),
+    ("MINUS", r"-"),
+    ("TIMES", r"\*"),
+    ("DIVIDE", r"/"),
+
+    ("LPAREN", r"\("),
+    ("RPAREN", r"\)"),
+    ("LBRACE", r"\{"),
+    ("RBRACE", r"\}"),
+    ("LBRACKET", r"\["),
+    ("RBRACKET", r"\]"),
+    ("SEMICOLON", r";"),
+    ("COMMA", r","),
+    ("COLON", r":"),
+    ("PIPE", r"\|"),
+]
+                 
+SKIP_TOKENS = {"WS", "COMMENT"}

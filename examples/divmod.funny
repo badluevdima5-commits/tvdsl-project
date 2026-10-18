@@ -1,0 +1,17 @@
+// Multiple return values: integer division with remainder
+function divmod(a: int, b: int)
+requires b != 0
+returns quotient: int, remainder: int
+ensures a == quotient * b + remainder and remainder >= 0 and remainder < b
+{
+    quotient = a / b;
+    remainder = a - quotient * b;
+}
+
+// Using tuple assignment
+function testDivmod(x: int, y: int)
+requires y != 0
+returns q: int, r: int
+{
+    q, r = divmod(x, y);
+}

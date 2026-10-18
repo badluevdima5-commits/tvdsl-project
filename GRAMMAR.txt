@@ -1,0 +1,159 @@
+# Грамматика языка Funny
+
+## Общие правила
+- Whitespace (пробелы, табы, переводы строк) игнорируются между токенами
+- Комментарии // до конца строки также игнорируются
+- Идентификаторы: [A-Za-z_][A-Za-z0-9_]*
+- Целые числа: [0-9]+
+
+## Модуль (верхний уровень)
+
+module ::= { function | formula }
+
+## Определения функций и формул
+
+function ::= "function" IDENT "(" [ varDefList ] ")"
+             [ "requires" predicate ]
+             "returns" varDefListNonEmpty
+             [ "ensures" predicate ]
+             [ "uses" varDefListNonEmpty ]
+             statement
+
+formula ::= IDENT "(" [ varDefList ] ")" "=>" predicate
+
+varDefList ::= varDef { "," varDef }
+varDefListNonEmpty ::= varDef { "," varDef }  // хотя бы один элемент
+varDef ::= IDENT ":" type
+type ::= "int" | "int" "[" "]"
+
+## Операторы
+
+statement ::= assignment
+            | "if" "(" condition ")" statement [ "else" statement ]
+            | "while" "(" condition ")" [ "invariant" predicate ] statement
+            | "{" { statement } "}"
+            | "assert" condition ";"
+            | "assume" condition ";"
+
+assignment ::= IDENT "=" expr ";"
+             | IDENT "[" expr "]" "=" expr ";"
+             | IDENT { "," IDENT } "=" functionCall ";"
+
+## Выражения (с приоритетами операторов)
+
+expr ::= additive
+
+additive ::= multiplicative { ( "+" | "-" ) multiplicative }
+
+multiplicative ::= unary { ( "*" | "/" ) unary }
+
+unary ::= "-" unary
+        | primary
+
+primary ::= INT
+          | "true"
+          | "false"
+          | "(" expr ")"
+          | IDENT "(" [ exprList ] ")"     // function call
+          | IDENT "[" expr "]"             // array access
+          | IDENT                          // variable reference
+
+exprList ::= expr { "," expr }
+
+## Условия (булевы выражения)
+
+condition ::= implication
+
+implication ::= disjunction [ "->" implication ]  // ПРАВОАССОЦИАТИВНА
+
+disjunction ::= conjunction { "or" conjunction }  // левоассоциативна
+
+conjunction ::= negation { "and" negation }       // левоассоциативна
+
+negation ::= [ "not" ] conditionPrimary
+
+conditionPrimary ::= "true"
+                   | "false"
+                   | comparison
+                   | "(" condition ")"
+
+comparison ::= expr compOp expr
+
+compOp ::= "==" | "!=" | "<" | ">" | "<=" | ">="
+
+## Предикаты (расширенные условия с кванторами)
+
+predicate ::= predImplication
+
+predImplication ::= predDisjunction [ "->" predImplication ]  // ПРАВОАССОЦИАТИВНА
+
+predDisjunction ::= predConjunction { "or" predConjunction }  // левоассоциативна
+
+predConjunction ::= predNegation { "and" predNegation }       // левоассоциативна
+
+predNegation ::= [ "not" ] predicatePrimary
+
+predicatePrimary ::= "true"
+                   | "false"
+                   | comparison
+                   | quantifier
+                   | formulaRef
+                   | "(" predicate ")"
+
+quantifier ::= ( "forall" | "exists" ) "(" varDef "|" predicate ")"
+
+formulaRef ::= IDENT "(" [ exprList ] ")"
+
+## Приоритеты операторов
+
+### Арифметические операторы (от высшего к низшему):
+1. Унарный минус: -
+2. Умножение, деление: * /
+3. Сложение, вычитание: + -
+
+### Логические операторы (от высшего к низшему):
+1. Отрицание: not
+2. Конъюнкция: and
+3. Дизъюнкция: or
+4. Импликация: ->
+
+## Ассоциативность
+
+- Бинарные арифметические операторы: левоассоциативны
+  Например: a - b - c = (a - b) - c
+
+- Конъюнкция (and) и дизъюнкция (or): левоассоциативны
+  Например: a and b and c = (a and b) and c
+
+- Импликация (->): ПРАВОАССОЦИАТИВНА
+  Например: a -> b -> c = a -> (b -> c)
+
+## Разрешение конфликтов
+
+### Dangling else:
+Конфликт "висящего" else разрешается в пользу привязки к ближайшему if:
+  if (a) if (b) s1 else s2  ===  if (a) { if (b) s1 else s2 }
+
+### Различение formulaRef и comparison в предикатах:
+Используется lookahead на 1 токен:
+- Если IDENT "(" → это formulaRef
+- Иначе → начало comparison
+
+## Ключевые слова (зарезервированные идентификаторы)
+
+function, returns, requires, ensures, uses,
+if, else, while, invariant,
+assert, assume, forall, exists,
+true, false, and, or, not, length
+
+## Встроенные функции
+
+length(arr: int[]) returns int  // длина массива
+
+## Примечания по реализации
+
+1. Парсер построен методом рекурсивного спуска (LL(1))
+2. Каждая нетерминальная продукция реализована как метод
+3. Обработка приоритетов через иерархию методов
+4. Правая ассоциативность импликации через рекурсию
+5. Позиции токенов берутся из лексера для сообщений об ошибках

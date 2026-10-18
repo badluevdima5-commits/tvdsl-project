@@ -1,0 +1,18 @@
+// Simple GCD function with precondition and loop invariant
+function gcd(x: int, y: int)
+requires x > 0 and y > 0
+returns result: int
+ensures result > 0
+uses a: int, b: int, temp: int
+{
+    a = x;
+    b = y;
+    while (b != 0)
+    invariant a > 0 and b >= 0
+    {
+        temp = a / b;
+        a = b;
+        b = a - temp * b;
+    }
+    result = a;
+}
